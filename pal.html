@@ -49,13 +49,13 @@
         w = 1280 - m[1] - m[3],
         h = 800 - m[0] - m[2];
 
-        var traits = ["source", "sport", "dport", "dist"];
-        var x = d3.scale.ordinal().domain(traits).rangePoints([0, w]);
+        var traits;
+        var x;
         var y = {};
-        var arr;
+        
         var line = d3.svg.line();
         var axis = d3.svg.axis().orient("left");
-        var foreground;
+        var foreground, background;
 
         
 
@@ -67,21 +67,21 @@
         
 
         d3.json('data.json',function(error, json){
-            if (error) throw error;      
-            var arr = [];
-            
+            if (error) throw error;    
+
+            var data = [];
+            traits = json.thead;
+            x = d3.scale.ordinal().domain(traits).rangePoints([0, w]);
 
             traits.forEach(function(d,i) {
                
-                arr[i] = json.tbody.map(function (item) {
+                data[i] = json.tbody.map(function (item) {
                     return item[i]
                 })                           
                 
                 y[i] = d3.scale.ordinal()
-                    // .range(new Array(json.tbody.length).map((item,i)=>{ return i}))
                     .rangeBands([h,0])
-                    // .rangePoints(arr[i]);
-                    .domain(arr[i]);     
+                    .domain(data[i]);     
 
                 y[i].brush = d3.svg.brush()
                     .y(y[i])
@@ -93,12 +93,6 @@
             //     .x(function (d,i) { return x(d.x[d]); })
             //     .y0(h)
             //     .y1(function (d,i) { return y(d.y[i]); });
-
-            // var area2 = d3.svg.area()//生成下图area
-            //     .x(function (d) { return x2(d.date); })
-            //     .y0(height2)
-            //     .y1(function (d) { return y2(d.price); });
-
 
             background = svg.append("g")
                 .attr("class", "background")
@@ -141,10 +135,6 @@
 
         function path(d) {
             return line(traits.map(function (p,i) { 
-                console.log('d='+d+' p= '+p+' i= '+i);
-                console.log(x(p), y[i](d[i]));
-                
-                
                 return [x(p), y[i](d[i])+66]; }));
         }
         
